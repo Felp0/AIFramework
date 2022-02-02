@@ -37,7 +37,7 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
     float yPos = 300;
 
     m_pCar = new Vehicle();
-    HRESULT hr = m_pCar->initMesh(pd3dDevice, carColour::redCar);
+    HRESULT hr = m_pCar->initMesh(pd3dDevice, carColour::blueCar);
     m_pCar->setVehiclePosition(Vector2D(xPos, yPos));
     if (FAILED(hr))
         return hr;
@@ -64,14 +64,14 @@ void AIManager::update(const float fDeltaTime)
 {
     for (unsigned int i = 0; i < m_waypointManager.getWaypointCount(); i++) {
         m_waypointManager.getWaypoint(i)->update(fDeltaTime);
-       // AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
+        AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
     }
 
     for (int i = 0; i < m_waypointManager.getQuadpointCount(); i++)
     {
         Waypoint* qp = m_waypointManager.getQuadpoint(i);
         qp->update(fDeltaTime);
-        //AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
+        AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
     }
 
     // update and display the pickups
@@ -81,7 +81,7 @@ void AIManager::update(const float fDeltaTime)
     }
 
 	// draw the waypoints nearest to the car
-	/*
+	
     Waypoint* wp = m_waypointManager.getNearestWaypoint(m_pCar->getPosition());
 	if (wp != nullptr)
 	{
@@ -91,7 +91,7 @@ void AIManager::update(const float fDeltaTime)
 			AddItemToDrawList(wp);
 		}
 	}
-    */
+   
 
     // update and draw the car (and check for pickup collisions)
 	if (m_pCar != nullptr)
@@ -128,6 +128,9 @@ void AIManager::keyUp(WPARAM param)
 
 void AIManager::keyDown(WPARAM param)
 {
+    Waypoint* _wpCenter = m_waypointManager.getNearestWaypoint(Vector2D(0, 0));
+    if (_wpCenter == nullptr)
+        return;
 	// hint 65-90 are a-z
 	const WPARAM key_a = 65;
 	const WPARAM key_s = 83;
@@ -137,7 +140,7 @@ void AIManager::keyDown(WPARAM param)
     {
         case VK_NUMPAD0:
         {
-            OutputDebugStringA("0 pressed \n");
+            m_pCar->setPositionTo(_wpCenter->getPosition());
             break;
         }
         case VK_NUMPAD1:
@@ -245,7 +248,7 @@ bool AIManager::checkForCollisions()
     // does the car bounding sphere collide with the pickup bounding sphere?
     if (boundingSphereCar.Intersects(boundingSpherePU))
     {
-        OutputDebugStringA("A collision has occurred!\n");
+        OutputDebugStringA("pickup collision\n");
         m_pickups[0]->hasCollided();
         setRandomPickupPosition(m_pickups[0]);
 

@@ -1,6 +1,8 @@
 #include "Vehicle.h"
 
-#define NORMAL_MAX_SPEED 200
+#define NORMAL_MAX_SPEED 100
+#define MAX_SPEED 300
+
 
 HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 {
@@ -20,6 +22,8 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 	m_maxSpeed = NORMAL_MAX_SPEED;
 	m_currentSpeed = m_maxSpeed;
 	setVehiclePosition(Vector2D(0, 0));
+	setMaxSpeed(MAX_SPEED);
+
 
 	m_lastPosition = Vector2D(0, 0);
 

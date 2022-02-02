@@ -87,6 +87,12 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 	float4 finalColor = (ambient + diffuse + specular) * texColor;
 
+	//Turning from colour pixel to a greyscale pixel and check how white it is and discard the white part!
+	float average = (finalColor.r + finalColor.g + finalColor.b) / 3.0f;
+
+	if (average >= 0.9f)
+		discard;
+
 	return finalColor;
 }
 
