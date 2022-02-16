@@ -39,6 +39,9 @@ struct Vector2D
     //returns true if both x and y are zero
     bool isZero()const { return (x * x + y * y) < MinDouble; }
 
+    //returns the value of two vectors
+    inline double    Add()const;
+
     //returns the length of the vector
     inline double    Length()const;
 
@@ -79,6 +82,7 @@ struct Vector2D
 
         return *this;
     }
+
 
     const Vector2D& operator-=(const Vector2D& rhs)
     {
@@ -143,6 +147,7 @@ std::ifstream& operator>>(std::ifstream& is, Vector2D& lhs);
 
 
 //------------------------------------------------------------------------member functions
+
 
 //------------------------- Length ---------------------------------------
 //
