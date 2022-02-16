@@ -124,6 +124,13 @@ Waypoint* WaypointManager::getQuadpoint(const unsigned int index)
 	return m_quadpoints[index];
 }
 
+Waypoint* WaypointManager::getRandomPoint()
+{
+	int random = rand() % m_waypoints.size();
+	
+	return m_waypoints[random];
+}
+
 Waypoint* WaypointManager::getNearestWaypoint(Vector2D position)
 {
 	float shortestDistance = FLT_MAX;

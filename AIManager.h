@@ -23,10 +23,12 @@ public:
 protected:
 	bool	checkForCollisions();
 	void	setRandomPickupPosition(PickupItem* pickup);
+	
 
 private:
 	vecPickups              m_pickups;
 	Vehicle*				m_pCar = nullptr;
+	Vehicle*				m_pSecondCar = nullptr;
 	WaypointManager			m_waypointManager;
 
 };

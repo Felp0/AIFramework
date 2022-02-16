@@ -12,7 +12,7 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 	{
 		setTextureName(L"Resources\\car_red.dds");
 	}
-	else if (colour == carColour::blueCar)
+	if (colour == carColour::blueCar)
 	{
 		setTextureName(L"Resources\\car_blue.dds");
 	}

@@ -9,6 +9,7 @@
 AIManager::AIManager()
 {
 	m_pCar = nullptr;
+    m_pSecondCar = nullptr;
 }
 
 AIManager::~AIManager()
@@ -27,7 +28,9 @@ void AIManager::release()
 	m_pickups.clear();
 
 	delete m_pCar;
+    delete m_pSecondCar;
 	m_pCar = nullptr;
+    m_pSecondCar = nullptr;
 }
 
 HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
@@ -35,6 +38,8 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
     // create the vehicle 
     float xPos = -500; // an abtrirary start point
     float yPos = 300;
+
+    
 
     m_pCar = new Vehicle();
     HRESULT hr = m_pCar->initMesh(pd3dDevice, carColour::blueCar);
@@ -45,6 +50,13 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
     // setup the waypoints
     m_waypointManager.createWaypoints(pd3dDevice);
     m_pCar->setWaypointManager(&m_waypointManager);
+
+    m_pSecondCar = new Vehicle();
+    HRESULT hrs = m_pSecondCar->initMesh(pd3dDevice, carColour::redCar);
+    m_pSecondCar->setVehiclePosition(Vector2D(xPos, yPos));
+    if (FAILED(hr))
+        return hr;
+    m_pSecondCar->setWaypointManager(&m_waypointManager);
 
     // create a passenger pickup item
     PickupItem* pPickupPassenger = new PickupItem();
@@ -100,6 +112,17 @@ void AIManager::update(const float fDeltaTime)
 		checkForCollisions();
 		AddItemToDrawList(m_pCar);
 	}
+
+    if (m_pSecondCar != nullptr)
+    {
+        m_pSecondCar->update(fDeltaTime);
+        checkForCollisions();
+        AddItemToDrawList(m_pSecondCar);
+    }
+
+    //Making red car walk around
+    Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
+    m_pSecondCar->setPositionTo(_wpRandom->getPosition());
 }
 
 void AIManager::mouseUp(int x, int y)
@@ -129,6 +152,8 @@ void AIManager::keyUp(WPARAM param)
 void AIManager::keyDown(WPARAM param)
 {
     Waypoint* _wpCenter = m_waypointManager.getNearestWaypoint(Vector2D(0, 0));
+    Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
+
     if (_wpCenter == nullptr)
         return;
 	// hint 65-90 are a-z
@@ -145,6 +170,8 @@ void AIManager::keyDown(WPARAM param)
         }
         case VK_NUMPAD1:
         {
+
+            m_pCar->setPositionTo(_wpRandom->getPosition());
             OutputDebugStringA("1 pressed \n");
             break;
         }

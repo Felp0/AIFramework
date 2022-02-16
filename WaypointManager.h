@@ -19,6 +19,8 @@ class Waypoint;
 typedef vector<Waypoint*> vecWaypoints;
 typedef vector <BoundingBox> vecBoundingBox;
 
+#include <random>
+
 class WaypointManager
 {
 public:
@@ -34,6 +36,8 @@ public:
 	Waypoint* getQuadpoint(const unsigned int index);
 	size_t getQuadpointCount() { return m_quadpoints.size(); }
 
+	Waypoint* getRandomPoint();
+	
 
 	//Waypoint* getWaypoint(const int x, const  int y);
 	//vecWaypoints getNeighbouringWaypoints(const int x, const  int y);
