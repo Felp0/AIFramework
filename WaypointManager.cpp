@@ -150,6 +150,8 @@ Waypoint* WaypointManager::getNearestWaypoint(Vector2D position)
 	return nearestWP;
 }
 
+
+
 vecWaypoints WaypointManager::getNeighbouringWaypoints(Waypoint* waypoint)
 {
 	// not very efficient, should ideally be pre-cached. 

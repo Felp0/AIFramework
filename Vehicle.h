@@ -25,6 +25,9 @@ public:
 	void setWaypointManager(WaypointManager* wpm);
 	void hasCollided() {}
 
+	Vector2D getCurrentPosition() { return m_currentPosition; }
+	float getCurrentSpeed() { return m_currentSpeed; }
+
 
 
 protected: // protected methods

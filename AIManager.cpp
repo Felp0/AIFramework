@@ -120,9 +120,7 @@ void AIManager::update(const float fDeltaTime)
         AddItemToDrawList(m_pSecondCar);
     }
 
-    //Making red car walk around
-    Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
-    m_pSecondCar->setPositionTo(_wpRandom->getPosition());
+   
 }
 
 void AIManager::mouseUp(int x, int y)
@@ -171,17 +169,19 @@ void AIManager::keyDown(WPARAM param)
         case VK_NUMPAD1:
         {
 
-            m_pCar->setPositionTo(_wpRandom->getPosition());
+            m_pSecondCar->setPositionTo(_wpRandom->getPosition());
             OutputDebugStringA("1 pressed \n");
             break;
         }
         case VK_NUMPAD2:
         {
+            m_pCar->setPositionTo(m_pSecondCar->getCurrentPosition());
             OutputDebugStringA("2 pressed \n");
             break;
         }
         case key_a:
         {
+
             OutputDebugStringA("a Down \n");
             break;
         }
