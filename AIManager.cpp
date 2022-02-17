@@ -10,6 +10,12 @@ AIManager::AIManager()
 {
 	m_pCar = nullptr;
     m_pSecondCar = nullptr;
+
+    m_wandering = false;
+    m_seeking = false;
+
+    m_timer = 2.0f;
+    m_elapsedTime = 0;
 }
 
 AIManager::~AIManager()
@@ -120,6 +126,17 @@ void AIManager::update(const float fDeltaTime)
         AddItemToDrawList(m_pSecondCar);
     }
 
+    //Behaviours
+    if (m_wandering)
+    {
+        wanderBehaviour(fDeltaTime);
+    }
+
+    if (m_seeking)
+    {
+        seekBehaviour(fDeltaTime);
+    }
+
    
 }
 
@@ -147,13 +164,39 @@ void AIManager::keyUp(WPARAM param)
     }
 }
 
-void AIManager::keyDown(WPARAM param)
+void AIManager::center()
 {
     Waypoint* _wpCenter = m_waypointManager.getNearestWaypoint(Vector2D(0, 0));
+    m_pCar->setPositionTo(_wpCenter->getPosition());
+}
+
+void AIManager::wanderBehaviour(float fDeltaTime)
+{
+    m_elapsedTime += fDeltaTime;
     Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
 
-    if (_wpCenter == nullptr)
-        return;
+    if (m_elapsedTime >= m_timer)
+    {
+        m_elapsedTime = 0;
+        m_pSecondCar->setPositionTo(_wpRandom->getPosition());
+    }
+}
+
+void AIManager::seekBehaviour(float fDeltaTime)
+{
+    m_elapsedTime += fDeltaTime;
+    
+    if (m_elapsedTime >= m_timer)
+    {
+        m_elapsedTime = 0;
+        m_pCar->setPositionTo(m_pSecondCar->getCurrentPosition());
+
+    }
+}
+
+void AIManager::keyDown(WPARAM param)
+{
+    
 	// hint 65-90 are a-z
 	const WPARAM key_a = 65;
 	const WPARAM key_s = 83;
@@ -163,20 +206,17 @@ void AIManager::keyDown(WPARAM param)
     {
         case VK_NUMPAD0:
         {
-            m_pCar->setPositionTo(_wpCenter->getPosition());
+            center();
             break;
         }
         case VK_NUMPAD1:
         {
-
-            m_pSecondCar->setPositionTo(_wpRandom->getPosition());
-            OutputDebugStringA("1 pressed \n");
+            m_wandering = true;
             break;
         }
         case VK_NUMPAD2:
         {
-            m_pCar->setPositionTo(m_pSecondCar->getCurrentPosition());
-            OutputDebugStringA("2 pressed \n");
+            m_seeking = true;
             break;
         }
         case key_a:
