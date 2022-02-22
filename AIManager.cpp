@@ -13,9 +13,12 @@ AIManager::AIManager()
 
     m_wandering = false;
     m_seeking = false;
+    m_fleeing = false;
+    m_check = true;
 
     m_timer = 2.0f;
     m_elapsedTime = 0;
+    m_maxDistance = 5.0f;
 }
 
 AIManager::~AIManager()
@@ -126,17 +129,24 @@ void AIManager::update(const float fDeltaTime)
         AddItemToDrawList(m_pSecondCar);
     }
 
-    //Behaviours
-    if (m_wandering)
-    {
-        wanderBehaviour(fDeltaTime);
-    }
+    
+        //Behaviours
+        if (m_wandering)
+        {
+            wanderBehaviour(fDeltaTime);
+            BlueWanderBehaviour(fDeltaTime);
+        }
 
-    if (m_seeking)
-    {
-        seekBehaviour(fDeltaTime);
-    }
+        if (m_seeking)
+        {
+            seekBehaviour(fDeltaTime);
+        }
 
+        if (m_fleeing)
+        {
+            fleeBehaviour(fDeltaTime);
+        }
+    
    
 }
 
@@ -182,6 +192,18 @@ void AIManager::wanderBehaviour(float fDeltaTime)
     }
 }
 
+void AIManager::BlueWanderBehaviour(float fDeltaTime)
+{
+    m_elapsedTime += fDeltaTime;
+    Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
+
+    if (m_elapsedTime >= m_timer)
+    {
+        m_elapsedTime = 0;
+        m_pCar->setPositionTo(_wpRandom->getPosition());
+    }
+}
+
 void AIManager::seekBehaviour(float fDeltaTime)
 {
     m_elapsedTime += fDeltaTime;
@@ -192,6 +214,23 @@ void AIManager::seekBehaviour(float fDeltaTime)
         m_pCar->setPositionTo(m_pSecondCar->getCurrentPosition());
 
     }
+}
+
+void AIManager::fleeBehaviour(float fDeltaTime)
+{
+    m_elapsedTime += fDeltaTime;
+
+    if (m_pSecondCar->getCurrentPosition().Distance(m_pCar->getCurrentPosition()) < m_maxDistance)
+    {
+        if (m_elapsedTime >= m_timer)
+        {
+            m_elapsedTime = 0;
+           m_pSecondCar->setPositionTo(m_pSecondCar->getCurrentPosition().GetReverse());
+
+           
+        }
+    }
+
 }
 
 void AIManager::keyDown(WPARAM param)
@@ -216,12 +255,13 @@ void AIManager::keyDown(WPARAM param)
         }
         case VK_NUMPAD2:
         {
-            m_seeking = true;
+            m_fleeing = true;
+           // m_seeking = true;
             break;
         }
         case key_a:
         {
-
+            
             OutputDebugStringA("a Down \n");
             break;
         }

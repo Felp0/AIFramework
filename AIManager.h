@@ -8,6 +8,8 @@ class Vehicle;
 class PickupItem;
 typedef vector<PickupItem*> vecPickups;
 
+#define MAX_DISTANCE = 5.0f
+
 class AIManager
 {
 public:
@@ -21,7 +23,9 @@ public:
 	void	keyUp(WPARAM param);
 	void	center();
 	void	wanderBehaviour(float fDeltaTime);
+	void	BlueWanderBehaviour(float fDeltaTime);
 	void	seekBehaviour(float fDeltaTime);
+	void	fleeBehaviour(float fDeltaTime);
 
 protected:
 	bool	checkForCollisions();
@@ -36,9 +40,15 @@ private:
 
 	bool					m_wandering;
 	bool					m_seeking;
+	bool					m_fleeing;
+	bool					m_check;
 	
 	float					m_timer;
 	float					m_elapsedTime;
+	float					m_maxDistance ;
+
+	Vector2D				m_sterringVelocity;
+	Vector2D				m_desiredVelocity;
 
 };
 
