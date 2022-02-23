@@ -27,6 +27,7 @@ public:
 
 	Vector2D getCurrentPosition() { return m_currentPosition; }
 	float getCurrentSpeed() { return m_currentSpeed; }
+	float getMaxSpeed() { return m_maxSpeed; }
 
 
 
@@ -34,14 +35,14 @@ protected: // protected methods
 
 
 protected: // preotected properties
-	float m_maxSpeed;
-	float m_currentSpeed;
+	float				m_maxSpeed;
+	float				m_currentSpeed;
 	
-	Vector2D m_currentPosition;
-	Vector2D m_startPosition;
-	Vector2D m_positionTo;
-	Vector2D m_lastPosition;
-	WaypointManager* m_waypointManager;
+	Vector2D			m_currentPosition;
+	Vector2D			m_startPosition;
+	Vector2D			m_positionTo;
+	Vector2D			m_lastPosition;
+	WaypointManager*	m_waypointManager;
 
 };
 
