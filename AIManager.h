@@ -21,9 +21,9 @@ public:
 	void	mouseUp(int x, int y);
 	void	keyDown(WPARAM param);
 	void	keyUp(WPARAM param);
+	void	behaviours(float fDeltatime);
 	void	center();
 	void	wanderBehaviour(float fDeltaTime);
-	void	BlueWanderBehaviour(float fDeltaTime);
 	void	seekBehaviour(float fDeltaTime);
 	void	fleeBehaviour(float fDeltaTime);
 

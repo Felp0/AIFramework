@@ -134,7 +134,7 @@ void AIManager::update(const float fDeltaTime)
         if (m_wandering)
         {
             wanderBehaviour(fDeltaTime);
-            BlueWanderBehaviour(fDeltaTime);
+            
         }
 
         if (m_seeking)
@@ -188,21 +188,11 @@ void AIManager::wanderBehaviour(float fDeltaTime)
     if (m_elapsedTime >= m_timer)
     {
         m_elapsedTime = 0;
+        m_pCar->setPositionTo(_wpRandom->getPosition());
         m_pSecondCar->setPositionTo(_wpRandom->getPosition());
     }
 }
 
-void AIManager::BlueWanderBehaviour(float fDeltaTime)
-{
-    m_elapsedTime += fDeltaTime;
-    Waypoint* _wpRandom = m_waypointManager.getRandomPoint();
-
-    if (m_elapsedTime >= m_timer)
-    {
-        m_elapsedTime = 0;
-        m_pCar->setPositionTo(_wpRandom->getPosition());
-    }
-}
 
 void AIManager::seekBehaviour(float fDeltaTime)
 {
@@ -225,10 +215,16 @@ void AIManager::fleeBehaviour(float fDeltaTime)
         if (m_elapsedTime >= m_timer)
         {
             m_elapsedTime = 0;
-           m_pSecondCar->setPositionTo(m_pSecondCar->getCurrentPosition().GetReverse());
+           m_pSecondCar->setPositionTo(m_pSecondCar->getCurrentPosition() * -1);
 
+           OutputDebugStringA("Fleeing");
            
         }
+        
+    }
+    else
+    {
+        m_wandering = true;
     }
 
 }
@@ -291,6 +287,11 @@ void AIManager::setRandomPickupPosition(PickupItem* pickup)
     if (wp) {
         pickup->setPosition(wp->getPosition());
     }
+}
+
+void AIManager::behaviours(float fDeltaTime)
+{
+
 }
 
 /*
