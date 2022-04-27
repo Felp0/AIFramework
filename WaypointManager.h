@@ -20,6 +20,15 @@ typedef vector<Waypoint*> vecWaypoints;
 typedef vector <BoundingBox> vecBoundingBox;
 
 #include <random>
+#include <unordered_map>
+#include <string>
+#include <queue>
+#include <functional>
+#include <vector>
+#include <utility>
+
+
+
 
 class WaypointManager
 {
@@ -37,6 +46,9 @@ public:
 	size_t getQuadpointCount() { return m_quadpoints.size(); }
 
 	Waypoint* getRandomPoint();
+
+	
+
 	
 
 	//Waypoint* getWaypoint(const int x, const  int y);

@@ -229,6 +229,10 @@ void AIManager::fleeBehaviour(float fDeltaTime)
 
 }
 
+void AIManager::pathfinding()
+{
+}
+
 void AIManager::keyDown(WPARAM param)
 {
     

@@ -10,6 +10,10 @@ typedef vector<PickupItem*> vecPickups;
 
 #define MAX_DISTANCE = 5.0f
 
+std::unordered_map<Waypoint*, Waypoint*> wayMap;
+
+typedef std::pair<float, Waypoint*> costWay;
+
 class AIManager
 {
 public:
@@ -26,6 +30,7 @@ public:
 	void	wanderBehaviour(float fDeltaTime);
 	void	seekBehaviour(float fDeltaTime);
 	void	fleeBehaviour(float fDeltaTime);
+	void	pathfinding();
 
 protected:
 	bool	checkForCollisions();

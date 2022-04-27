@@ -131,6 +131,7 @@ Waypoint* WaypointManager::getRandomPoint()
 	return m_waypoints[random];
 }
 
+
 Waypoint* WaypointManager::getNearestWaypoint(Vector2D position)
 {
 	float shortestDistance = FLT_MAX;
