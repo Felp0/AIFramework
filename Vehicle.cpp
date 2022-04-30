@@ -3,6 +3,8 @@
 #define NORMAL_MAX_SPEED 100
 #define MAX_SPEED 300
 
+#define SPEED 5
+
 
 HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 {
@@ -20,6 +22,7 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 	HRESULT hr = DrawableGameObject::initMesh(pd3dDevice);
 
 	m_maxSpeed = NORMAL_MAX_SPEED;
+	m_mass = 5.0f;
 	m_currentSpeed = m_maxSpeed;
 	setVehiclePosition(Vector2D(0, 0));
 	setMaxSpeed(MAX_SPEED);
@@ -33,20 +36,30 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 void Vehicle::update(const float deltaTime)
 {
 	// consider replacing with force based acceleration / velocity calculations
-	Vector2D vecTo = m_positionTo - m_currentPosition;
-	float velocity = deltaTime * m_currentSpeed;
+	//Vector2D vecTo = m_positionTo - m_currentPosition;
+	//float velocity = deltaTime * m_currentSpeed;
 
-	float length = (float)vecTo.Length();
-	// if the distance to the end point is less than the car would move, then only move that distance. 
-	if (length > 0) {
-		vecTo.Normalize();
-		if(length > velocity)
-			vecTo *= velocity;
-		else
-			vecTo *= length;
+	//float length = (float)vecTo.Length();
+	//// if the distance to the end point is less than the car would move, then only move that distance. 
+	//if (length > 0) {
+	//	vecTo.Normalize();
+	//	if(length > velocity)
+	//		vecTo *= velocity;
+	//	else
+	//		vecTo *= length;
 
-		m_currentPosition += vecTo;
-	}
+	//	m_currentPosition += vecTo;
+	//}
+
+	//getAcceleration(Vector2D(10,0));
+
+	//moving with Physics
+	m_velocity = m_velocity + m_acceleration;
+	m_velocity.Truncate(SPEED);
+	
+	m_currentPosition = m_currentPosition + m_velocity;
+
+
 
 	// rotate the object based on its last & current position
 	Vector2D diff = m_currentPosition - m_lastPosition;
@@ -91,6 +104,11 @@ void Vehicle::setVehiclePosition(Vector2D position)
 void Vehicle::setWaypointManager(WaypointManager* wpm)
 {
 	m_waypointManager = wpm;
+}
+
+void Vehicle::setVelocity(Vector2D velocity)
+{
+	m_velocity = velocity;
 }
 
 

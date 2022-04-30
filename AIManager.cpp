@@ -15,10 +15,20 @@ AIManager::AIManager()
     m_seeking = false;
     m_fleeing = false;
     m_check = true;
+    m_pursuit = false;
+    m_arrived = false;
 
     m_timer = 2.0f;
     m_elapsedTime = 0;
-    m_maxDistance = 5.0f;
+
+    m_maxDistance = 150.0f;
+    m_slowRadius = 250.0f;
+    m_fleeRadius = 250.0f;
+
+    m_circleDistance = 20.0f;
+    m_circleRadius = 15.0f;
+
+    
 }
 
 AIManager::~AIManager()
@@ -62,7 +72,7 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 
     m_pSecondCar = new Vehicle();
     HRESULT hrs = m_pSecondCar->initMesh(pd3dDevice, carColour::redCar);
-    m_pSecondCar->setVehiclePosition(Vector2D(xPos, yPos));
+    m_pSecondCar->setVehiclePosition(Vector2D(0, 0));
     if (FAILED(hr))
         return hr;
     m_pSecondCar->setWaypointManager(&m_waypointManager);
@@ -131,21 +141,36 @@ void AIManager::update(const float fDeltaTime)
 
     
         //Behaviours
-        if (m_wandering)
+        if (m_wandering )
         {
             wanderBehaviour(fDeltaTime);
             
         }
 
-        if (m_seeking)
+        if (m_pursuit )
         {
-            seekBehaviour(fDeltaTime);
+            pursuitBehaviour();
         }
 
         if (m_fleeing)
         {
-            fleeBehaviour(fDeltaTime);
+            fleeBehaviour();
         }
+
+        if (m_seeking)
+        {
+            seekBehaviour();
+        }
+        if (m_arrived)
+        {
+            arriveBehaviour();
+        }
+        if (m_avoidObj)
+        {
+            objAvoidance();
+        }
+      
+
     
    
 }
@@ -188,45 +213,153 @@ void AIManager::wanderBehaviour(float fDeltaTime)
     if (m_elapsedTime >= m_timer)
     {
         m_elapsedTime = 0;
-        m_pCar->setPositionTo(_wpRandom->getPosition());
         m_pSecondCar->setPositionTo(_wpRandom->getPosition());
+
+        m_desiredVelocity = m_pSecondCar->getPositionTo() - m_pSecondCar->getCurrentPosition();
+        m_desiredVelocity.Normalize();
+        m_desiredVelocity *= 2.0f; //define not working
+
+        m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+
+        m_sterringVelocity.Normalize();
+        m_sterringVelocity * 50.0f;
+
+        m_pSecondCar->getAcceleration(m_sterringVelocity);
     }
-}
 
 
-void AIManager::seekBehaviour(float fDeltaTime)
-{
-    m_elapsedTime += fDeltaTime;
     
-    if (m_elapsedTime >= m_timer)
-    {
-        m_elapsedTime = 0;
-        m_pCar->setPositionTo(m_pSecondCar->getCurrentPosition());
-
-    }
 }
 
-void AIManager::fleeBehaviour(float fDeltaTime)
+
+void AIManager::seekBehaviour()
 {
-    m_elapsedTime += fDeltaTime;
+    
 
-    if (m_pSecondCar->getCurrentPosition().Distance(m_pCar->getCurrentPosition()) < m_maxDistance)
+    m_desiredVelocity = m_pCar->getPositionTo() - m_pCar->getCurrentPosition();
+    m_desiredVelocity.Normalize();
+    m_desiredVelocity *= 5.0f; //define not working
+
+    m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+
+    m_sterringVelocity.Normalize();
+    m_sterringVelocity * 50.0f;
+
+    m_pCar->getAcceleration(m_sterringVelocity);
+
+}
+
+void AIManager::objAvoidance()
+{
+    Vector2D sensor = m_pCar->getVelocity();
+    sensor.Normalize();
+    sensor *= 20.0f;
+
+    Vector2D CenterPoint = m_pCar->getCurrentPosition() + sensor;
+
+    if (m_pSecondCar->getCurrentPosition().Distance(CenterPoint) < 100.0f)
     {
-        if (m_elapsedTime >= m_timer)
-        {
-            m_elapsedTime = 0;
-           m_pSecondCar->setPositionTo(m_pSecondCar->getCurrentPosition() * -1);
+        m_desiredVelocity = CenterPoint - m_pSecondCar->getPosition();
+        m_desiredVelocity.Normalize();
+        m_desiredVelocity *= 5.0f; //define not working
 
-           OutputDebugStringA("Fleeing");
-           
-        }
+
+        m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+
+        m_sterringVelocity.Normalize();
+        m_sterringVelocity * 50.0f;
         
+        m_pCar->getAcceleration(m_sterringVelocity);
     }
     else
     {
-        m_wandering = true;
+        seekBehaviour();
     }
 
+
+
+}
+
+void AIManager::pursuitBehaviour()
+{
+  
+    m_futurePoint = m_pSecondCar->getCurrentPosition() + m_pSecondCar->getVelocity();
+    m_desiredVelocity = m_futurePoint - m_pCar->getCurrentPosition();
+    m_desiredVelocity.Normalize();
+    m_desiredVelocity *= 5.0f;
+
+    m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+
+    m_sterringVelocity.Normalize();
+    m_sterringVelocity * 50.0f;
+
+    m_pCar->getAcceleration(m_sterringVelocity);
+
+  
+    
+}
+
+
+
+
+void AIManager::fleeBehaviour()
+{
+  
+    if (m_pSecondCar->getCurrentPosition().Distance(m_pCar->getCurrentPosition()) < m_fleeRadius)
+    {
+        m_desiredVelocity = m_pSecondCar->getCurrentPosition() - m_pCar->getCurrentPosition();
+        m_desiredVelocity.Normalize();
+        m_desiredVelocity *= 5.0f;
+
+        m_sterringVelocity = m_desiredVelocity - m_pSecondCar->getVelocity();
+
+        m_sterringVelocity.Normalize();
+        m_sterringVelocity * 50.0f;
+
+        m_pSecondCar->getAcceleration(m_sterringVelocity);
+
+    }
+
+}
+
+void AIManager::arriveBehaviour()
+{
+    m_desiredVelocity = m_pCar->getPositionTo() - m_pCar->getCurrentPosition();
+    m_distance = m_desiredVelocity.Length();
+
+    
+
+    if (m_distance < m_slowRadius)
+    {
+        m_desiredVelocity.Normalize();
+        m_desiredVelocity = m_desiredVelocity * 5.0f * (m_distance / m_slowRadius);
+
+        m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+        m_sterringVelocity.Normalize();
+
+        m_sterringVelocity * 150.0f;
+    }
+    else if (m_distance < 8.0f)
+    {
+
+        m_sterringVelocity = Vector2D(0, 0);
+    }
+    else 
+    {
+        m_desiredVelocity.Normalize();
+        m_desiredVelocity *= 5.0f;
+
+        m_sterringVelocity = m_desiredVelocity - m_pCar->getVelocity();
+        m_sterringVelocity.Normalize();
+
+        m_sterringVelocity * 80.0f;
+    }
+
+   
+
+    
+
+    m_pCar->getAcceleration(m_sterringVelocity);
 }
 
 void AIManager::pathfinding()
@@ -240,6 +373,10 @@ void AIManager::keyDown(WPARAM param)
 	const WPARAM key_a = 65;
 	const WPARAM key_s = 83;
     const WPARAM key_t = 84;
+    const WPARAM key_w = 87;
+    const WPARAM key_p = 0x50;
+    const WPARAM key_f = 0x46;
+    const WPARAM key_o = 0x4F;
 
     switch (param)
     {
@@ -250,27 +387,46 @@ void AIManager::keyDown(WPARAM param)
         }
         case VK_NUMPAD1:
         {
-            m_wandering = true;
+           
             break;
         }
         case VK_NUMPAD2:
         {
-            m_fleeing = true;
-           // m_seeking = true;
+           
             break;
         }
         case key_a:
         {
-            
+            m_arrived = true;
+            m_seeking = false;
             OutputDebugStringA("a Down \n");
             break;
         }
 		case key_s:
 		{
+            m_seeking = !m_seeking;
+            //m_pCar->setVelocity(Vector2D(0, 0));
 			break;
 		}
-        case key_t:
+        case key_w:
 		{
+            m_wandering = !m_wandering;
+            break;
+        }
+        case key_p:
+        {
+            OutputDebugStringA("a Down \n");
+            m_pursuit = !m_pursuit;
+            break;
+        }
+        case key_f:
+        {
+            m_fleeing = !m_fleeing;
+            break;
+        }
+        case key_o:
+        {
+            m_avoidObj = !m_avoidObj;
             break;
         }
         // etc
