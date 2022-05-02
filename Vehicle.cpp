@@ -1,4 +1,5 @@
 #include "Vehicle.h"
+#include "PickupItem.h"
 
 #define NORMAL_MAX_SPEED 100
 #define MAX_SPEED 300
@@ -30,6 +31,11 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 
 	m_lastPosition = Vector2D(0, 0);
 
+	m_arrived = true;
+	m_picked = true;
+
+	
+
 	return hr;
 }
 
@@ -54,11 +60,30 @@ void Vehicle::update(const float deltaTime)
 	//getAcceleration(Vector2D(10,0));
 
 	//moving with Physics
+
+	switch (m_currentState)
+	{
+	case carState::pathfinding:
+		{
+			if(m_picked)
+			{
+				pathToWaypoint(m_waypointManager->getNearestWaypoint(m_passenger->getPosition()));
+				m_picked = false;
+			}
+			else
+			{
+
+			travessingVector();
+			}
+			break;
+		}
+	default:
+		break;
+	}
 	m_velocity = m_velocity + m_acceleration;
 	m_velocity.Truncate(SPEED);
 	
 	m_currentPosition = m_currentPosition + m_velocity;
-
 
 
 	// rotate the object based on its last & current position
@@ -106,9 +131,84 @@ void Vehicle::setWaypointManager(WaypointManager* wpm)
 	m_waypointManager = wpm;
 }
 
+void Vehicle::setPickup(PickupItem* passenger)
+{
+	m_passenger = passenger;
+}
+
 void Vehicle::setVelocity(Vector2D velocity)
 {
 	m_velocity = velocity;
+}
+
+void Vehicle::pathToWaypoint(Waypoint* goWaypoint)
+{
+
+	// current node wp = waypoint calculate g cost, h cost, f cost
+	Node* currentNode = new Node();
+	currentNode->wp = goWaypoint;
+	currentNode->gCost = m_currentPosition.Distance(goWaypoint->getPosition());
+
+	_vWp.clear();
+	
+
+	// while node.wp is not car.wp
+	while (currentNode->wp != m_waypointManager->getNearestWaypoint(m_currentPosition))
+	{
+		_vWp.push_back(currentNode->wp);
+		currentNode = findClosestNeighbour(currentNode->wp, goWaypoint); 
+	}
+
+	_vWp.push_back(currentNode->wp);
+
+	// get niehgbours
+
+}
+
+void Vehicle::travessingVector()
+{
+	if (m_arrived)//if u arrived generate a new path
+	{
+		Waypoint* wp = _vWp.back();
+		Vector2D Direction = wp->getPosition() - m_currentPosition;
+		Direction.Normalize();
+
+		m_velocity = Direction;
+		m_arrived = false;
+	}
+	else
+	{
+		if (m_currentPosition.Distance(_vWp.back()->getPosition()) <= 0.5f)
+		{
+			_vWp.pop_back();
+			m_arrived = true;
+		}
+	}
+
+	
+}
+
+Node* Vehicle::findClosestNeighbour(Waypoint* wp, Waypoint* endNode)
+{
+	vecWaypoints neighbour = m_waypointManager->getNeighbouringWaypoints(wp);
+	Node* closetNode = new Node();
+	Node* currentNode = new Node();
+	closetNode->gCost = 99999;
+
+	for (int i = 0; i < neighbour.size(); i++)
+	{
+		currentNode->wp = neighbour[i];
+		currentNode->gCost = neighbour[i]->getPosition().Distance(m_currentPosition);
+
+		if (closetNode->gCost > currentNode->gCost)
+		{
+			closetNode->wp = currentNode->wp;
+			closetNode->gCost = currentNode->gCost;
+		}
+	}
+
+
+	return closetNode;
 }
 
 
