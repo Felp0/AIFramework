@@ -3,6 +3,7 @@
 struct ID3D11Device;
 
 
+
 #include <d3d11_1.h> // this has the appropriate directx structures / objects
 #include <DirectXCollision.h> // this is the dx collision class helper
 using namespace DirectX; // this means you don't need to put DirectX:: in front of objects like XMVECTOR and so on. 
@@ -28,7 +29,12 @@ typedef vector <BoundingBox> vecBoundingBox;
 #include <utility>
 
 
+struct Node
+{
+	Waypoint* wp;
 
+	float	gCost;
+};
 
 class WaypointManager
 {
@@ -37,6 +43,7 @@ public:
 	~WaypointManager();
 
 	HRESULT createWaypoints(ID3D11Device* pd3dDevice);
+
 	void destroyWaypoints();
 
 	Waypoint* getWaypoint(const unsigned int index);

@@ -36,7 +36,7 @@ public:
 	void	pursuitBehaviour();
 	void	fleeBehaviour();
 	void	arriveBehaviour();
-	void	pathfinding();
+	void	pathfinding(float fDeltaTime);
 
 protected:
 	bool	checkForCollisions();
@@ -61,6 +61,7 @@ private:
 	bool					m_pursuit;
 	bool					m_arrived;
 	bool					m_avoidObj;
+	bool					m_pathfinding;
 	
 	float					m_timer;
 	float					m_elapsedTime;

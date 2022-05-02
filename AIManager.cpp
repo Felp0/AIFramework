@@ -81,6 +81,7 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
     PickupItem* pPickupPassenger = new PickupItem();
     hr = pPickupPassenger->initMesh(pd3dDevice, pickuptype::Passenger);
     m_pickups.push_back(pPickupPassenger);
+    m_pCar->setPickup(pPickupPassenger);
 
     // NOTE!! for fuel and speedboost - you will need to create these here yourself
 
@@ -95,14 +96,14 @@ void AIManager::update(const float fDeltaTime)
 {
     for (unsigned int i = 0; i < m_waypointManager.getWaypointCount(); i++) {
         m_waypointManager.getWaypoint(i)->update(fDeltaTime);
-        AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
+       // AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
     }
 
     for (int i = 0; i < m_waypointManager.getQuadpointCount(); i++)
     {
         Waypoint* qp = m_waypointManager.getQuadpoint(i);
         qp->update(fDeltaTime);
-        AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
+        //AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
     }
 
     // update and display the pickups
@@ -169,7 +170,7 @@ void AIManager::update(const float fDeltaTime)
         {
             objAvoidance();
         }
-      
+       
 
     
    
@@ -299,9 +300,6 @@ void AIManager::pursuitBehaviour()
     
 }
 
-
-
-
 void AIManager::fleeBehaviour()
 {
   
@@ -362,9 +360,44 @@ void AIManager::arriveBehaviour()
     m_pCar->getAcceleration(m_sterringVelocity);
 }
 
-void AIManager::pathfinding()
-{
-}
+//void AIManager::pathfinding(float fDeltaTime)
+//{
+//    m_elapsedTime += fDeltaTime;
+//   
+//    vecWaypoints nearby = m_waypointManager.getNeighbouringWaypoints(m_waypointManager.getNearestWaypoint(m_pCar->getCurrentPosition()));
+//    Waypoint* destination = nearby.back();
+//    int targetwaypoint = 1;
+//    m_pCar->setPositionTo(nearby[]->getPosition());
+//    
+//    
+//
+//
+//    string distance = "Distance To Waypoint: " + to_string(m_pCar->getPosition().Distance(m_pCar->getPositionTo())) +"\n";
+//    OutputDebugStringA(distance.c_str());
+//    if (m_pCar->getPosition().Distance(m_pCar->getPositionTo()) > 2.0f)
+//    {
+//        m_desiredVelocity = m_pCar->getPositionTo() - m_pCar->getCurrentPosition();
+//        m_desiredVelocity.Normalize();
+//        m_desiredVelocity *= 2.0f; //define not working
+//
+//        m_sterringVelocity = m_desiredVelocity - m_pSecondCar->getVelocity();
+//
+//        m_sterringVelocity.Normalize();
+//        m_sterringVelocity * 10.0f;
+//
+//        
+//        m_pCar->getAcceleration(m_sterringVelocity);
+//    }
+//    else
+//    {
+//  
+//        m_sterringVelocity = Vector2D(0, 0);
+//        m_pCar->getAcceleration(m_sterringVelocity);
+//        m_pCar->setVelocity(Vector2D(0, 0));
+//
+//    }
+//
+//}
 
 void AIManager::keyDown(WPARAM param)
 {
@@ -377,6 +410,7 @@ void AIManager::keyDown(WPARAM param)
     const WPARAM key_p = 0x50;
     const WPARAM key_f = 0x46;
     const WPARAM key_o = 0x4F;
+    const WPARAM key_b = 0x42;
 
     switch (param)
     {
@@ -387,6 +421,7 @@ void AIManager::keyDown(WPARAM param)
         }
         case VK_NUMPAD1:
         {
+            m_pathfinding = true;
            
             break;
         }
@@ -427,6 +462,11 @@ void AIManager::keyDown(WPARAM param)
         case key_o:
         {
             m_avoidObj = !m_avoidObj;
+            break;
+        }
+        case key_b:
+        {
+            m_pCar->setState(carState::pathfinding);
             break;
         }
         // etc
@@ -519,6 +559,7 @@ bool AIManager::checkForCollisions()
         OutputDebugStringA("pickup collision\n");
         m_pickups[0]->hasCollided();
         setRandomPickupPosition(m_pickups[0]);
+        m_pCar->setPicked(true);
 
         // you will need to test the type of the pickup to decide on the behaviour
         // m_pCar->dosomething(); ...
