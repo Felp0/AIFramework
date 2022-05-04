@@ -50,7 +50,7 @@ public:
 	inline float getMaxSpeed() { return m_maxSpeed; }
 	
 	inline void getAcceleration(Vector2D force) { m_acceleration = force / m_mass;}
-	
+	inline void SetPosition(Vector2D position) { m_currentPosition = position; }
 	//void addForce(Vector2D force);
 
 
@@ -64,6 +64,7 @@ protected: // preotected properties
 	float				m_maxSpeed;
 	float				m_currentSpeed;
 	float				m_mass;
+	float				m_fuel;
 
 	bool				m_arrived;
 	bool				m_picked;

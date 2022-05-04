@@ -25,6 +25,8 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 	m_maxSpeed = NORMAL_MAX_SPEED;
 	m_mass = 5.0f;
 	m_currentSpeed = m_maxSpeed;
+	m_fuel = 100.0f;
+
 	setVehiclePosition(Vector2D(0, 0));
 	setMaxSpeed(MAX_SPEED);
 
@@ -73,7 +75,7 @@ void Vehicle::update(const float deltaTime)
 			else
 			{
 
-			travessingVector();
+				travessingVector();
 			}
 			break;
 		}

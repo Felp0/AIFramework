@@ -69,7 +69,6 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
     // setup the waypoints
     m_waypointManager.createWaypoints(pd3dDevice);
     m_pCar->setWaypointManager(&m_waypointManager);
-
     m_pSecondCar = new Vehicle();
     HRESULT hrs = m_pSecondCar->initMesh(pd3dDevice, carColour::redCar);
     m_pSecondCar->setVehiclePosition(Vector2D(0, 0));
@@ -94,6 +93,7 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 
 void AIManager::update(const float fDeltaTime)
 {
+    
     for (unsigned int i = 0; i < m_waypointManager.getWaypointCount(); i++) {
         m_waypointManager.getWaypoint(i)->update(fDeltaTime);
        // AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
@@ -138,6 +138,62 @@ void AIManager::update(const float fDeltaTime)
         m_pSecondCar->update(fDeltaTime);
         checkForCollisions();
         AddItemToDrawList(m_pSecondCar);
+
+    }
+
+    Vector2D pos = m_pCar->getCurrentPosition();
+
+    if (m_pCar->getCurrentPosition().x > 700.0f)
+    {
+        pos.x = -pos.x + 30.0f;
+
+        m_pCar->SetPosition(pos);
+    }
+    if (m_pCar->getCurrentPosition().y > 700.0f)
+    {
+        pos.y = -pos.y + 30.0f;
+
+        m_pCar->SetPosition(pos);
+    }
+    if (m_pCar->getCurrentPosition().x < -800.0f)
+    {
+        pos.x = -pos.x - 30.0f;
+
+        m_pCar->SetPosition(pos);
+    }
+    if (m_pCar->getCurrentPosition().y < -800.0f)
+    {
+        pos.y = -pos.y- 30.0f;
+
+        m_pCar->SetPosition(pos);
+    }
+    if (m_pSecondCar->getCurrentPosition().x > 700.0f)
+    {
+        pos.x = -pos.x + 30.0f;
+
+        m_pSecondCar->SetPosition(pos);
+        
+    }
+    if (m_pSecondCar->getCurrentPosition().y > 700.0f)
+    {
+        pos.y = -pos.y + 30.0f;
+
+        m_pSecondCar->SetPosition(pos);
+        
+    }
+    if (m_pSecondCar->getCurrentPosition().x < -800.0f)
+    {
+        pos.x = -pos.x - 30.0f;
+
+        m_pSecondCar->SetPosition(pos);
+        
+    }
+    if (m_pSecondCar->getCurrentPosition().y < -800.0f)
+    {
+        pos.y = -pos.y - 30.0f;
+
+        m_pSecondCar->SetPosition(pos);
+        
     }
 
     
